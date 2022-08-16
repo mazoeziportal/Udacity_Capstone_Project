@@ -6,7 +6,7 @@ orbs:
   kubernetes: circleci/kubernetes@1.0
 
 jobs:
-  lint:
+  docker-lint:
     docker:
       - image: python:3.7.3-stretch
     
@@ -50,7 +50,7 @@ jobs:
             docker push ${DOCKER_USERNAME}/uda-capstone
             echo "image pushed"
 
-            
+
   create-cluster:
     executor: aws-eks/python3
     parameters:
@@ -130,7 +130,7 @@ jobs:
 workflows:
   deployment:
     jobs:
-      - lint
+      - docker-lint
       - docker-build:
           requires:
             - lint
