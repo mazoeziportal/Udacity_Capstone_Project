@@ -23,7 +23,7 @@ spec:
       containers:
       - name: UdaCapstone
         imagePullPolicy: Always
-        image: uda-capstone
+        image: myaxu/uda-capstone
         ports:
         - name: http
         - containerPort: 80
