@@ -28,7 +28,34 @@ jobs:
           command: |
             . venv/bin/activate
             make lint
+
+  docker-build:
+    docker:
+      - image: circleci/node:13.8.0
+    
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: build docker container and push tag
+          command: |
+            docker build -t uda-capstone-${CIRCLE_WORKFLOW_ID} .
+            docker image ls
+            echo " docker id and image"
+            docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+            docker tag uda-capstone-${CIRCLE_WORKFLOW_ID} ${DOCKER_USERNAME}/uda-capstone-${CIRCLE_WORKFLOW_ID}
+            docker push ${DOCKER_USERNAME}/uda-capstone-${CIRCLE_WORKFLOW_ID}
+            echo "image pushed"
+
+
+
 workflows:
   deployment:
     jobs:
       - lint
+      - docker-build:
+          requires:
+            - lint
