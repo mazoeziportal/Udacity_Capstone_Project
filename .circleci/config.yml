@@ -121,7 +121,7 @@ jobs:
           watch-timeout: 15m
       - kubernetes/create-or-update-resource:
           get-rollout-status: false
-          resource-file-path: deployment/service.yml
+          resource-file-path: deployment/service.yaml
           resource-name: deployment/uda-capstone
           show-kubectl-command: true
           namespace: uda-capstone-ns
