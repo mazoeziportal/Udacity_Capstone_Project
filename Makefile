@@ -1,4 +1,4 @@
-docker-build: docker build --tag=uda-capstone .
+docker-build: docker build --tag=uda-capstone . 
 
 install:
 	wget -O ./hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
