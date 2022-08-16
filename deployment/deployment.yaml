@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: UdaCapstone
-  namespace: UdaCapstone-ns
+  name: uda-capstone
+  namespace: uda-capstone-ns
   labels:
-    app: UdaCapstone
+    app: uda-capstone
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: UdaCapstone
+      app: uda-capstone
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -18,10 +18,10 @@ spec:
   template:
     metadata:
       labels:
-        app: UdaCapstone
+        app: uda-capstone
     spec:
       containers:
-      - name: UdaCapstone
+      - name: uda-capstone
         imagePullPolicy: Always
         image: myaxu/uda-capstone
         ports:

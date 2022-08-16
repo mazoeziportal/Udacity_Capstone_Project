@@ -56,7 +56,7 @@ jobs:
     parameters:
       cluster-name:
         description: |
-          UdaCapstone
+          uda-capstone
         type: string
       # aws-region:
       #   description |
@@ -100,7 +100,7 @@ jobs:
     parameters:
       cluster-name:
         description: |
-          UdaCapstone
+          uda-capstone
         type: string
     steps:
       - checkout
@@ -115,16 +115,16 @@ jobs:
       - kubernetes/create-or-update-resource:
           get-rollout-status: false
           resource-file-path: deployment/deployment.yaml
-          resource-name: deployment/UdaCapstone
+          resource-name: deployment/uda-capstone
           show-kubectl-command: true
-          namespace: UdaCapstone-ns
+          namespace: uda-capstone-ns
           watch-timeout: 15m
       - kubernetes/create-or-update-resource:
           get-rollout-status: false
           resource-file-path: deployment/service.yml
-          resource-name: deployment/UdaCapstone
+          resource-name: deployment/uda-capstone
           show-kubectl-command: true
-          namespace: UdaCapstone-ns
+          namespace: uda-capstone-ns
           watch-timeout: 15m
 
 workflows:
@@ -135,8 +135,8 @@ workflows:
           requires:
             - docker-lint
       - create-cluster:
-          cluster-name: UdaCapstone      
+          cluster-name: uda-capstone      
           requires: [docker-build]
       - deploy-cluster:
-          cluster-name: UdaCapstone
+          cluster-name: uda-capstone
           requires: [create-cluster]
