@@ -49,6 +49,8 @@ jobs:
             docker tag uda-capstone ${DOCKER_USERNAME}/uda-capstone
             docker push ${DOCKER_USERNAME}/uda-capstone
             echo "image pushed"
+
+            
   create-cluster:
     executor: aws-eks/python3
     parameters:
