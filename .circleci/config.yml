@@ -101,4 +101,5 @@ workflows:
           requires:
             - lint
       - create-cluster:
-          requires: [build-docker-image]
+          cluster-name: UdaCapstone      
+          requires: [docker-build]
