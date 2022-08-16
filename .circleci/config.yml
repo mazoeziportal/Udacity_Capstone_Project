@@ -169,6 +169,7 @@ jobs:
             kubectl get roles --all-namespaces
             kubectl get deployment
 
+
 workflows:
   deployment:
     jobs:
