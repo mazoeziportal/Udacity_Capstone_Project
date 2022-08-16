@@ -1,0 +1,288 @@
+version: 2.1
+
+orbs:
+  aws-ecr: circleci/aws-ecr@7.3.0
+  aws-eks: circleci/aws-eks@1.1.0
+  kubernetes: circleci/kubernetes@1.0
+
+jobs:
+  lint:
+    docker:
+      - image: python:3.7.3-stretch
+    
+    # docker:
+    #   - image: amazon/aws-cli
+
+    steps:
+      - checkout
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            make install
+            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            chmod +x /bin/hadolint
+      - run:
+          name: run lint
+          command: |
+            . venv/bin/activate
+            make lint
+
+
+  # docker-build:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+    
+  #   working_directory: ~/repo
+
+  #   steps:
+  #     - checkout
+  #     - setup_remote_docker:
+  #         version: 19.03.13
+  #     - run:
+  #         name: build docker container and push tag
+  #         command: |
+  #           docker build -t uda-capstone-${CIRCLE_WORKFLOW_ID} .
+  #           docker image ls
+  #           echo " docker id and image"
+  #           docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  #           docker tag uda-capstone-${CIRCLE_WORKFLOW_ID} ${DOCKER_USERNAME}/uda-capstone-${CIRCLE_WORKFLOW_ID}
+  #           docker push ${DOCKER_USERNAME}/uda-capstone-${CIRCLE_WORKFLOW_ID}
+  #           echo "image pushed"
+ 
+  #  create-cluster:
+  #    executor: aws-eks/python3
+  #    parameters:
+  #      cluster-name:
+  #        description: |
+  #          Name of the EKS cluster
+  #        type: string
+  #    steps:
+  #      - checkout
+  #      - aws-eks/install-aws-iam-authenticator:
+  #          release-tag: ''
+  #      - run:
+  #          name: Install the eksctl tool
+  #          command: |
+  #            if which eksctl > /dev/null; then
+  #            echo "eksctl is already installed"
+  #            exit 0
+  #            fi
+  #            mkdir -p eksctl_download
+  #            curl --silent --location --retry 5 "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C eksctl_download
+  #            chmod +x eksctl_download/eksctl
+  #            SUDO=""
+  #            if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
+  #            SUDO="sudo"
+  #            fi
+  #            $SUDO mv eksctl_download/eksctl /usr/local/bin/
+  #            rmdir eksctl_download
+  #      - aws-eks/create-cluster:
+  #          cluster-name: << parameters.cluster-name >>
+  #          skip-kubectl-install: false
+  #          verbose: 3
+  #          node-type: t2.micro
+  #          nodes-max: 2
+  #          ssh-access: true
+  #          ssh-public-key: 'udacity'
+  #          aws-region: $AWS_DEFAULT_REGION
+  #          zones: us-east-1a,us-east-1b,us-east-1c
+
+  # test-cluster:
+  #   executor: aws-eks/python3
+  #   parameters:
+  #     cluster-name:
+  #       description: |
+  #         Name of the EKS cluster
+  #       type: string
+  #   steps:
+  #     - run:
+  #         name: Install the eksctl tool
+  #         command: |
+  #           if which eksctl > /dev/null; then
+  #           echo "eksctl is already installed"
+  #           exit 0
+  #           fi
+  #           mkdir -p eksctl_download
+  #           curl --silent --location --retry 5 "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C eksctl_download
+  #           chmod +x eksctl_download/eksctl
+  #           SUDO=""
+  #           if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
+  #           SUDO="sudo"
+  #           fi
+  #           $SUDO mv eksctl_download/eksctl /usr/local/bin/
+  #           rmdir eksctl_download
+
+  #   steps:
+  #     - kubernetes/install
+  #     - aws-eks/update-kubeconfig-with-authenticator:
+  #         cluster-name: << parameters.cluster-name >>
+  #         aws-region:  $AWS_DEFAULT_REGION
+  #     - run:
+  #         name: Test cluster
+  #         command: |
+  #           kubectl get services -o wide
+  #           kubectl get nodes -o wide
+  #           kubectl get pods --all-namespaces -o wide
+  #           kubectl describe pods
+  #           kubectl get svc
+  #           kubectl describe configmap -n kube-system aws-auth
+  #           kubectl get roles --all-namespaces
+  #           kubectl get deployment
+
+
+  # create-deployment:
+  #   executor: aws-eks/python3
+  #   parameters:
+  #     cluster-name:
+  #       description: |
+  #         rm-capstone
+  #       type: string
+  #   steps:
+  #     - checkout
+  #     - aws-eks/update-kubeconfig-with-authenticator:
+  #         cluster-name: << parameters.cluster-name >>
+  #         aws-region: $AWS_DEFAULT_REGION
+  #         install-kubectl: true
+  #     - kubernetes/create-or-update-resource:
+  #         resource-file-path: deployment/namespace.yaml
+  #         show-kubectl-command: true
+  #         watch-timeout: 15m
+  #     - kubernetes/create-or-update-resource:
+  #         get-rollout-status: false
+  #         resource-file-path: deployment/deployment.yaml
+  #         resource-name: deployment/UdaCapstone
+  #         show-kubectl-command: true
+  #         namespace: UdaCapstone-ns
+  #         watch-timeout: 15m
+  #     - kubernetes/create-or-update-resource:
+  #         get-rollout-status: false
+  #         resource-file-path: deployment/service.yml
+  #         resource-name: deployment/UdaCapstone
+  #         show-kubectl-command: true
+  #         namespace: UdaCapstone-ns
+  #         watch-timeout: 15m
+###############################
+  # test-cluster:
+  #   executor: aws-eks/python3
+  #   parameters:
+  #     cluster-name:
+  #       description: |
+  #         Name of the EKS cluster
+  #       type: string
+  #   steps:
+  #     - run:
+  #         name: Install the eksctl tool
+  #         command: |
+  #           if which eksctl > /dev/null; then
+  #           echo "eksctl is already installed"
+  #           exit 0
+  #           fi
+  #           mkdir -p eksctl_download
+  #           curl --silent --location --retry 5 "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C eksctl_download
+  #           chmod +x eksctl_download/eksctl
+  #           SUDO=""
+  #           if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
+  #           SUDO="sudo"
+  #           fi
+  #           $SUDO mv eksctl_download/eksctl /usr/local/bin/
+  #           rmdir eksctl_download
+
+  #   steps:
+  #     - kubernetes/install
+  #     - aws-eks/update-kubeconfig-with-authenticator:
+  #         cluster-name: << parameters.cluster-name >>
+  #         aws-region:  $AWS_DEFAULT_REGION
+  #     - run:
+  #         name: Test cluster
+  #         command: |
+  #           kubectl get services -o wide
+  #           kubectl get nodes -o wide
+  #           kubectl get pods --all-namespaces -o wide
+  #           kubectl describe pods
+  #           kubectl get svc
+  #           kubectl describe configmap -n kube-system aws-auth
+  #           kubectl get roles --all-namespaces
+  #           kubectl get deployment
+          
+
+      # - run:
+      #     name: Install of dependencies for cluster and workers setup - kubectl
+      #     command: |
+      #       curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
+      #       chmod +x ./kubectl
+      #       mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+      #       echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+      #       kubectl version --short --client
+      # - aws-eks/update-kubeconfig-with-authenticator:
+      #     cluster-name: << parameters.cluster-name >>
+      # - run:
+      #     name: Test cluster
+      #     command: |
+      #       kubectl get services
+      #       kubectl get nodes -o wide
+#############################################
+  # delete-cluster:
+  #   executor: aws-eks/python3
+  #   parameters:
+  #     cluster-name:
+  #       description: |
+  #         Name of the EKS cluster
+  #       type: string
+  #   steps:
+  #     - checkout
+  #     - aws-eks/install-aws-iam-authenticator:
+  #         release-tag: ''
+  #     - run:
+  #         name: Install the eksctl tool
+  #         command: |
+  #           if which eksctl > /dev/null; then
+  #           echo "eksctl is already installed"
+  #           exit 0
+  #           fi
+  #           mkdir -p eksctl_download
+  #           curl --silent --location --retry 5 "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C eksctl_download
+  #           chmod +x eksctl_download/eksctl
+  #           SUDO=""
+  #           if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
+  #           SUDO="sudo"
+  #           fi
+  #           $SUDO mv eksctl_download/eksctl /usr/local/bin/
+  #           rmdir eksctl_download
+  #     - aws-eks/delete-cluster:
+  #        cluster-name: UdaCapstone
+
+  # delay:
+  #   executor: aws-eks/python3
+  #   steps:
+  #     - run:
+  #         command: |
+  #           sleep 540
+  #         name: Delay cluster deletion
+
+
+workflows:
+  deployment:
+    jobs:
+      - lint
+      # - docker-build:
+      #     requires:
+      #       - lint
+      # - create-cluster:
+          
+      # - create-deployment:
+          
+      #     requires:
+      #       - create-cluster
+      # - test-cluster:
+          
+      #     requires:
+      #       - create-cluster
+      # - delay:
+      #     requires:
+      #       - create-cluster
+      # - delete-cluster:
+          
+      #     requires:
+      #       - delay

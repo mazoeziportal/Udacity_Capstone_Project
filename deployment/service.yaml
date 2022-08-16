@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: UdaCapstone
+  namespace: UdaCapstone-ns
+  labels:
+    app: UdaCapstone
+spec:
+  type: LoadBalancer
+  selector:
+    app: UdaCapstone
+  ports:
+    - protocol: TCP
+    - port: 80
+      targetPort: 80
