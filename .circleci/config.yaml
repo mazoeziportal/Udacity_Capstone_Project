@@ -29,8 +29,6 @@ jobs:
             . venv/bin/activate
             make lint
 
-
-
   # docker-build:
   #   docker:
   #     - image: circleci/node:13.8.0
