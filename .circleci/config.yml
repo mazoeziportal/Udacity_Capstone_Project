@@ -133,7 +133,7 @@ workflows:
       - docker-lint
       - docker-build:
           requires:
-            - lint
+            - docker-lint
       - create-cluster:
           cluster-name: UdaCapstone      
           requires: [docker-build]
