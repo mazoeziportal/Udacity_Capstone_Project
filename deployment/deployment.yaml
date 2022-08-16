@@ -22,11 +22,11 @@ spec:
     spec:
       containers:
       - name: uda-capstone
-        imagePullPolicy: Always
         image: myaxu/uda-capstone
         ports:
         - name: http
-        - containerPort: 80
+          containerPort: 80
+        imagePullPolicy: Always
         livenessProbe:
           httpGet:
             path: /
