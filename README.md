@@ -29,12 +29,14 @@ How to Deploy the Infrastructure:Project steps
 5. Create deployment.yml and service.yaml
 6. Deploy the application in Amazon EKS
 7. Test EKS cluster 
-8. eksctl create cluster --name uda-capstone --region us-east-1 --fargate
-9. aws eks --region us-east-1 update-kubeconfig --name uda-capstone
-10. kubectl get nodes
-11. kubectl get pods --all-namespaces
-12. kubectl apply -f deployment.yml
-13. kubectl get deployment
+            . kubectl get services -o wide
+            . kubectl get nodes -o wide
+            . kubectl get pods --all-namespaces -o wide
+            . kubectl describe pods
+            . kubectl get svc
+            . kubectl describe configmap -n kube-system aws-auth
+            . kubectl get roles --all-namespaces
+            . kubectl get deployment
 
 
 

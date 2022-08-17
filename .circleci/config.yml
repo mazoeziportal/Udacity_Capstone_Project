@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  # aws-ecr: circleci/aws-ecr@7.3.0
+  aws-ecr: circleci/aws-ecr@7.3.0
   aws-eks: circleci/aws-eks@1.1.0
   kubernetes: circleci/kubernetes@1.0
 
@@ -9,10 +9,6 @@ jobs:
   docker-lint:
     docker:
       - image: python:3.7.3-stretch
-    
-    # docker:
-    #   - image: amazon/aws-cli
-
     steps:
       - checkout
       - run:
@@ -29,160 +25,156 @@ jobs:
             . venv/bin/activate
             make lint
 
-  # docker-build:
-  #   docker:
-  #     - image: circleci/node:13.8.0
+  docker-build:
+    docker:
+      - image: circleci/node:13.8.0
     
-  #   working_directory: ~/repo
+    working_directory: ~/repo
 
-  #   steps:
-  #     - checkout
-  #     - setup_remote_docker:
-  #         version: 19.03.13
-  #     - run:
-  #         name: build docker container and push tag
-  #         command: |
-  #           docker build -t uda-capstone .
-  #           docker image ls
-  #           echo " docker id and image"
-  #           docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-  #           docker tag uda-capstone ${DOCKER_USERNAME}/uda-capstone
-  #           docker push ${DOCKER_USERNAME}/uda-capstone
-  #           echo "image pushed"
-
-
-  # create-cluster:
-  #   executor: aws-eks/python3
-  #   parameters:
-  #     cluster-name:
-  #       description: |
-  #         uda-capstone
-  #       type: string
-  #     # aws-region:
-  #     #   description |
-  #     #     AWS region
-  #     #   type: string
-  #     #   default: "us-east-1"
-  #   steps:
-  #     - checkout
-  #     - aws-eks/install-aws-iam-authenticator:
-  #         release-tag: ''
-  #     - run:
-  #         name: Install the eksctl tool
-  #         command: |
-  #           if which eksctl > /dev/null; then
-  #           echo "eksctl is already installed"
-  #           exit 0
-  #           fi
-  #           mkdir -p eksctl_download
-  #           curl --silent --location --retry 5 "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C eksctl_download
-  #           chmod +x eksctl_download/eksctl
-  #           SUDO=""
-  #           if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
-  #           SUDO="sudo"
-  #           fi
-  #           $SUDO mv eksctl_download/eksctl /usr/local/bin/
-  #           rmdir eksctl_download
-  #     - aws-eks/create-cluster:
-  #         cluster-name: << parameters.cluster-name >>
-  #         skip-kubectl-install: false
-  #         verbose: 3
-  #         node-type: t2.micro
-  #         nodes-max: 2
-  #         ssh-access: false
-  #         ssh-public-key: ''
-  #         aws-region: $AWS_DEFAULT_REGION
-  #         zones: us-east-1a,us-east-1b,us-east-1c
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: build docker container and push tag
+          command: |
+            docker build -t uda-capstone .
+            docker image ls
+            echo " docker id and image"
+            docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+            docker tag uda-capstone ${DOCKER_USERNAME}/uda-capstone
+            docker push ${DOCKER_USERNAME}/uda-capstone
+            echo "image pushed"
 
 
-  # deploy-cluster:
-  #   executor: aws-eks/python3
-  #   parameters:
-  #     cluster-name:
-  #       description: |
-  #         uda-capstone
-  #       type: string
-  #   steps:
-  #     - checkout
-  #     - aws-eks/update-kubeconfig-with-authenticator:
-  #         cluster-name: << parameters.cluster-name >>
-  #         aws-region: $AWS_DEFAULT_REGION
-  #         install-kubectl: true
-  #     - kubernetes/create-or-update-resource:
-  #         resource-file-path: deployment/namespace.yaml
-  #         show-kubectl-command: true
-  #         watch-timeout: 15m
-  #     - kubernetes/create-or-update-resource:
-  #         get-rollout-status: false
-  #         resource-file-path: deployment/deployment.yaml
-  #         resource-name: deployment/uda-capstone
-  #         show-kubectl-command: true
-  #         namespace: uda-capstone-ns
-  #         watch-timeout: 15m
-  #     - kubernetes/create-or-update-resource:
-  #         get-rollout-status: false
-  #         resource-file-path: deployment/service.yaml
-  #         resource-name: deployment/uda-capstone
-  #         show-kubectl-command: true
-  #         namespace: uda-capstone-ns
-  #         watch-timeout: 15m
+  create-cluster:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          uda-capstone
+        type: string
+
+    steps:
+      - checkout
+      - aws-eks/install-aws-iam-authenticator:
+          release-tag: ''
+      - run:
+          name: Install the eksctl tool
+          command: |
+            if which eksctl > /dev/null; then
+            echo "eksctl is already installed"
+            exit 0
+            fi
+            mkdir -p eksctl_download
+            curl --silent --location --retry 5 "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C eksctl_download
+            chmod +x eksctl_download/eksctl
+            SUDO=""
+            if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
+            SUDO="sudo"
+            fi
+            $SUDO mv eksctl_download/eksctl /usr/local/bin/
+            rmdir eksctl_download
+      - aws-eks/create-cluster:
+          cluster-name: << parameters.cluster-name >>
+          skip-kubectl-install: false
+          verbose: 3
+          node-type: t2.micro
+          nodes-max: 2
+          ssh-access: false
+          ssh-public-key: ''
+          aws-region: $AWS_DEFAULT_REGION
+          zones: us-east-1a,us-east-1b,us-east-1c
 
 
-  # test-cluster:
-  #   executor: aws-eks/python3
-  #   parameters:
-  #     cluster-name:
-  #       description: |
-  #         Name of the EKS cluster
-  #       type: string
-  #   steps:
-  #     - run:
-  #         name: Install the eksctl tool
-  #         command: |
-  #           if which eksctl > /dev/null; then
-  #           echo "eksctl is already installed"
-  #           exit 0
-  #           fi
-  #           mkdir -p eksctl_download
-  #           curl --silent --location --retry 5 "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C eksctl_download
-  #           chmod +x eksctl_download/eksctl
-  #           SUDO=""
-  #           if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
-  #           SUDO="sudo"
-  #           fi
-  #           $SUDO mv eksctl_download/eksctl /usr/local/bin/
-  #           rmdir eksctl_download
+  deploy-cluster:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          uda-capstone
+        type: string
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: $AWS_DEFAULT_REGION
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          resource-file-path: deployment/namespace.yaml
+          show-kubectl-command: true
+          watch-timeout: 15m
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: false
+          resource-file-path: deployment/deployment.yaml
+          resource-name: deployment/uda-capstone
+          show-kubectl-command: true
+          namespace: uda-capstone-ns
+          watch-timeout: 15m
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: false
+          resource-file-path: deployment/service.yaml
+          resource-name: deployment/uda-capstone
+          show-kubectl-command: true
+          namespace: uda-capstone-ns
+          watch-timeout: 15m
 
-  #     - kubernetes/install
-  #     - aws-eks/update-kubeconfig-with-authenticator:
-  #         cluster-name: << parameters.cluster-name >>
-  #         aws-region:  $AWS_DEFAULT_REGION
-  #     - run:
-  #         name: Test cluster
-  #         command: |
-  #           kubectl get services -o wide
-  #           kubectl get nodes -o wide
-  #           kubectl get pods --all-namespaces -o wide
-  #           kubectl describe pods
-  #           kubectl get svc
-  #           kubectl describe configmap -n kube-system aws-auth
-  #           kubectl get roles --all-namespaces
-  #           kubectl get deployment
+
+  test-cluster:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - run:
+          name: Install the eksctl tool
+          command: |
+            if which eksctl > /dev/null; then
+            echo "eksctl is already installed"
+            exit 0
+            fi
+            mkdir -p eksctl_download
+            curl --silent --location --retry 5 "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C eksctl_download
+            chmod +x eksctl_download/eksctl
+            SUDO=""
+            if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
+            SUDO="sudo"
+            fi
+            $SUDO mv eksctl_download/eksctl /usr/local/bin/
+            rmdir eksctl_download
+
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region:  $AWS_DEFAULT_REGION
+      - run:
+          name: Test cluster
+          command: |
+            kubectl get services -o wide
+            kubectl get nodes -o wide
+            kubectl get pods --all-namespaces -o wide
+            kubectl describe pods
+            kubectl get svc
+            kubectl describe configmap -n kube-system aws-auth
+            kubectl get roles --all-namespaces
+            kubectl get deployment
 
 
 workflows:
   deployment:
     jobs:
       - docker-lint
-      # - docker-build:
-      #     requires:
-      #       - docker-lint
-      # - create-cluster:
-      #     cluster-name: uda-capstone      
-      #     requires: [docker-build]
-      # - deploy-cluster:
-      #     cluster-name: uda-capstone
-      #     requires: [create-cluster]
-      # - test-cluster:
-      #     cluster-name: uda-capstone
-      #     requires: [deploy-cluster]
+      - docker-build:
+          requires:
+            - docker-lint
+      - create-cluster:
+          cluster-name: uda-capstone      
+          requires: [docker-build]
+      - deploy-cluster:
+          cluster-name: uda-capstone
+          requires: [create-cluster]
+      - test-cluster:
+          cluster-name: uda-capstone
+          requires: [deploy-cluster]
