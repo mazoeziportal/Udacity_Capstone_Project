@@ -4,18 +4,17 @@ Introduction
 
 This is a capstone project for the Cloud DevOps Engineer Nanodegree Program.The purpose of the project is for applying the skills and knowledge which were acquired throughout the  program. These include:
 
-Using .circleci to implement Continuous Integration and Continuous Deployment
-Building pipelines
-Working with CloudFormation to deploy clusters
-Building Kubernetes clusters
-Building Docker containers in pipelines
-Interacting with AWS-Eks
-Building Kubernetes clusters using AWS EKS
-Using .
+1. Using .circleci to implement Continuous Integration and Continuous Deployment
+2. Building pipelines
+3. Working with CloudFormation to deploy clusters
+4. Building Docker containers in pipelines
+5. Interacting with AWS-Eks
+6. Building Kubernetes clusters using AWS EKS
+
 
 Application
 
-The Application is based on a simple Nginx “Hello World script using index.html to render a simple webpage in the user's browser. it uses the rolling update strategy to update the web app using .circleci to build, test and deploy the application.
+The Application is based on a simple Nginx “Hello World script using index.html to render a simple webpage in the user's browser. It uses the rolling update strategy to update the web app using .circleci to build, test and deploy the application.
 
 Kubernetes Cluster
 
@@ -23,19 +22,19 @@ To create and deploy the kubernetes Cluster, I used  the Deployment object(deplo
 
 How to Deploy the Infrastructure:Project steps
 
-Set up the environment
-Linting Dockerfile 
-Building Docker containers in pipelines
-Creates  CloudFormation to deploy clusters 
-Create deployment.yml and service.yaml
-Deploy the application in Amazon EKS
-Test EKS cluster 
-eksctl create cluster --name uda-capstone --region us-east-1 --fargate
-aws eks --region us-east-1 update-kubeconfig --name uda-capstone
-kubectl get nodes
-kubectl get pods --all-namespaces
-kubectl apply -f deployment.yml
-kubectl get deployment
+1. Set up the environment
+2. Linting Dockerfile 
+3. Building Docker containers in pipelines
+4. Creates  CloudFormation to deploy clusters 
+5. Create deployment.yml and service.yaml
+6. Deploy the application in Amazon EKS
+7. Test EKS cluster 
+8. eksctl create cluster --name uda-capstone --region us-east-1 --fargate
+9. aws eks --region us-east-1 update-kubeconfig --name uda-capstone
+10. kubectl get nodes
+11. kubectl get pods --all-namespaces
+12. kubectl apply -f deployment.yml
+13. kubectl get deployment
 
 
 
