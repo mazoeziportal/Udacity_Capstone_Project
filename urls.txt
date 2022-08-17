@@ -1,0 +1,2 @@
+1. Github Repo= https://github.com/mazoeziportal/Udacity_Capstone_Project.git
+2. DNS Endpoint= aec2a1d88cf2b4a5dbb8f69dfd7c2ee8-34317857.us-east-1.elb.amazonaws.com
