@@ -161,6 +161,7 @@ jobs:
             kubectl get roles --all-namespaces
             kubectl get deployment
 
+
   delete-cluster:
     executor: aws-eks/python3
     parameters:
