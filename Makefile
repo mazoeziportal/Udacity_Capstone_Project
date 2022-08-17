@@ -14,7 +14,6 @@ run-circleci-local:
 
 lint:
 	./hadolint Dockerfile
-#	pylint --disable=R,C,w1203,w1202 index.html
 #	docker run --rm -i hadolint/hadolint:v1.16.3 < Dockerfile
 
 all: install lint test
